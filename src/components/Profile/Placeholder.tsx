@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Placeholder({ title, subtitle }) {
+export default function Placeholder({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="flex items-center justify-center p-8 text-center">
       <div className="space-y-4">

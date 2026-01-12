@@ -4,7 +4,7 @@ import OngoingOrdersCard from "./OngoingOrder";
 import PreviousOrdersTable from "./PreviousOrder";
 import { useTranslation } from "react-i18next";
 
-export default function OrdersPanel({ ordersTab, setOrdersTab }) {
+export default function OrdersPanel({ ordersTab, setOrdersTab }: { ordersTab: string; setOrdersTab: (tab: string) => void }) {
 
   const { i18n } = useTranslation();
   const langClass = i18n.language === "ar";

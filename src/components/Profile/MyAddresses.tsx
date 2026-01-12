@@ -2,7 +2,7 @@ import React from "react";
 import AddressCard from "./AddressCard";
 import { useTranslation } from "react-i18next";
 
-const MyAddresses = ({ tab, setTab }) => {
+const MyAddresses = ({ tab, setTab }: { tab: string; setTab: (tab: string) => void }) => {
 
   const {i18n} = useTranslation();
   const langClass = i18n.language === "ar";

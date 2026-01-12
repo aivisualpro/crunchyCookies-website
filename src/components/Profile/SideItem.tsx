@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SideItem({ active, onClick, icon, label }) {
+export default function SideItem({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
     <button
       onClick={onClick}

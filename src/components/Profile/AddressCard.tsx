@@ -1,7 +1,16 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
-const AddressCard = ({ en_title, en_address, ar_title, ar_address, onEdit, onDelete }) => {
+interface AddressCardProps {
+  en_title: string;
+  en_address: string;
+  ar_title: string;
+  ar_address: string;
+  onEdit: () => void;
+  onDelete?: () => void;
+}
+
+const AddressCard: React.FC<AddressCardProps> = ({ en_title, en_address, ar_title, ar_address, onEdit, onDelete }) => {
 
   const { i18n } = useTranslation();
   const langClass = i18n.language === "ar";
@@ -19,12 +28,14 @@ const AddressCard = ({ en_title, en_address, ar_title, ar_address, onEdit, onDel
         >
           {langClass ? "تعديل" : "Edit"}
         </button>
-        <button
-          onClick={onDelete}
-          className="bg-red-500 hover:bg-red-500/70 text-white font-medium px-4 py-2 rounded-lg text-sm"
-        >
-          {langClass ? "حذف" : "Delete"}
-        </button>
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="bg-red-500 hover:bg-red-500/70 text-white font-medium px-4 py-2 rounded-lg text-sm"
+          >
+            {langClass ? "حذف" : "Delete"}
+          </button>
+        )}
       </div>
     </div>
   );

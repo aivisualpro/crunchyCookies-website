@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function OrdersTab({ className = "", active, onClick, label, count }) {
+export default function OrdersTab({ className = "", active, onClick, label, count }: { className?: string; active: boolean; onClick: () => void; label: string; count?: number }) {
   return (
     <button
       onClick={onClick}

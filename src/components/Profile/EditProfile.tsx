@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { updateUser } from "../../api/user";
 import { ClipLoader } from "react-spinners";
 
-export default function EditProfile({ tab, setTab }) {
+export default function EditProfile({ tab, setTab }: { tab: string; setTab: (tab: string) => void }) {
   const { i18n } = useTranslation();
   const langClass = i18n.language === "ar";
 
@@ -21,7 +21,7 @@ export default function EditProfile({ tab, setTab }) {
     phone: "",
   });
 
-  const { user } = JSON.parse(localStorage.getItem("user"));
+  const { user } = JSON.parse(localStorage.getItem("user") as string);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -38,7 +38,7 @@ export default function EditProfile({ tab, setTab }) {
       if (response?.success) {
         setLoading(false);
         // ✅ 1. Get old data (so we keep the token)
-        const oldData = JSON.parse(localStorage.getItem("user"));
+        const oldData = JSON.parse(localStorage.getItem("user") as string);
 
         // ✅ 2. Replace only the "user" part with fresh data
         const newData = {

@@ -4,7 +4,7 @@ import Card from "./Card";
 import SectionTitle from "./SectionTitle";
 import Field from "./Field";
 
-export default function EditAddress({ tab, setTab }) {
+export default function EditAddress({ tab, setTab }: { tab: string; setTab: (tab: string) => void }) {
   return (
     <Card>
       <SectionTitle

@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function SectionTitle({ children, action }) {
+export default function SectionTitle({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div>
       <div className="flex items-center justify-between">

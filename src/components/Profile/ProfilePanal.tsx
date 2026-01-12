@@ -5,11 +5,11 @@ import SectionTitle from "./SectionTitle";
 import Field from "./Field";
 import { useTranslation } from "react-i18next";
 
-export default function ProfilePanel({ tab, setTab }) {
+export default function ProfilePanel({ tab, setTab }: { tab: string; setTab: (tab: string) => void }) {
   const { i18n } = useTranslation();
   const langClass = i18n.language === "ar";
 
-  const { user } = JSON.parse(localStorage.getItem("user"));
+  const { user } = JSON.parse(localStorage.getItem("user") as string);
 
   return (
     <Card>
