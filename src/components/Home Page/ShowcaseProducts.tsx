@@ -10,23 +10,40 @@ import { useQuery } from "@tanstack/react-query";
 import { getWishlistByUser } from "../../api/wishlist";
 import { useAddWishlist, useDeleteWishlist } from "../../hooks/wishlist/useWishlistMutation";
 
-const ShowcaseProducts = ({ products, en_title, ar_title }) => {
+import ClipLoader from "react-spinners/ClipLoader";
+
+interface ShowcaseProps {
+  products: any[];
+  en_title: string;
+  ar_title: string;
+  footerButton?: {
+    visible: boolean;
+    loading?: boolean;
+    onClick?: () => void;
+    label?: string;
+  };
+}
+
+const ShowcaseProducts: React.FC<ShowcaseProps> = ({ products, en_title, ar_title, footerButton }) => {
   const { i18n } = useTranslation();
   const langClass = i18n.language === "ar" ? "ar" : "en";
 
   // logged-in user
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   useEffect(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem("user"));
-      if (stored?.user) setUser(stored.user);
+      const item = localStorage.getItem("user");
+      if (item) {
+        const stored = JSON.parse(item);
+        if (stored?.user) setUser(stored.user);
+      }
     } catch {}
   }, []);
   const userId = user?._id;
 
   // toast
   const [toastMsg, setToastMsg] = useState("");
-  const showToast = (msg) => {
+  const showToast = (msg: string) => {
     setToastMsg(msg);
     setTimeout(() => setToastMsg(""), 1800);
   };
@@ -34,21 +51,21 @@ const ShowcaseProducts = ({ products, en_title, ar_title }) => {
   // fetch wishlist for current user
   const { data: wishlistRes } = useQuery({
     queryKey: ["wishlist", userId],
-    queryFn: () => getWishlistByUser(userId),
+    queryFn: () => getWishlistByUser(userId || ""),
     enabled: !!userId,
   });
   const wishlistItems = wishlistRes?.data || [];
 
   // mutation hooks
-  const { mutateAsync: addWishlist, isPending: addPending } = useAddWishlist(userId);
-  const { mutateAsync: deleteWishlist, isPending: delPending } = useDeleteWishlist(userId);
+  const { mutateAsync: addWishlist, isPending: addPending } = useAddWishlist(userId || "");
+  const { mutateAsync: deleteWishlist, isPending: delPending } = useDeleteWishlist(userId || "");
 
   // helper: is this product liked?
-  const isProductLiked = (prodId) =>
-    wishlistItems.some((w) => String(w?.product?._id) === String(prodId));
+  const isProductLiked = (prodId: string) =>
+    wishlistItems.some((w: any) => String(w?.product?._id) === String(prodId));
 
   // toggle handler
-  const handleToggleWishlist = async (prod) => {
+  const handleToggleWishlist = async (prod: any) => {
     if (!userId) {
       showToast(langClass === "ar" ? "الرجاء تسجيل الدخول لقائمة الرغبات" : "Please login to use wishlist");
       return;
@@ -147,6 +164,25 @@ const ShowcaseProducts = ({ products, en_title, ar_title }) => {
               </div>
             );
           })}
+        </div>
+
+        {footerButton?.visible && (
+          <div className="flex flex-col items-center justify-center mt-8 gap-3">
+            <Button
+              onClick={footerButton.onClick}
+              label={
+                footerButton.loading
+                  ? langClass === "ar"
+                    ? "جاري التحميل..."
+                    : "Loading..."
+                  : footerButton.label || (langClass === "ar" ? "تحميل المزيد" : "Load more")
+              }
+              disabled={footerButton.loading}
+            />
+          </div>
+        )}
+        <div className="text-center mt-4">
+          <ClipLoader size={30} color="#000" loading={footerButton?.loading} />
         </div>
       </div>
     </section>

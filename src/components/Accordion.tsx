@@ -15,7 +15,14 @@ const COLORS = {
   subtext: "#475569"           // slate-600-ish for answers
 };
 
-function Row({ q, a, isOpen, onToggle }) {
+interface RowProps {
+  q: string;
+  a: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}
+
+function Row({ q, a, isOpen, onToggle }: RowProps) {
   return (
     <div className="select-none">
       <button
@@ -33,9 +40,10 @@ function Row({ q, a, isOpen, onToggle }) {
         <FiChevronDown
           className={`shrink-0 transition-transform duration-200`}
           size={18}
-          style={{ color: COLORS.icon }}
-          aria-hidden
-          {...(isOpen ? { style: { color: COLORS.icon, transform: "rotate(180deg)" } } : {})}
+          style={{ 
+            color: COLORS.icon,
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)"
+          }}
         />
       </button>
 
@@ -58,8 +66,13 @@ function Row({ q, a, isOpen, onToggle }) {
   );
 }
 
-export default function Accordion({ title, faqs }) {
-  const [openIdx, setOpenIdx] = useState(null);
+interface AccordionProps {
+  title: string;
+  faqs: { q: string; a: string }[];
+}
+
+export default function Accordion({ title, faqs }: AccordionProps) {
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
     <section className="py-10 md:py-14 px-4">

@@ -2,18 +2,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { getRecipeints } from "../../api/recipeints";
 
-const recipeintsKey = (params = {}) => ["recipeints", params];
+const recipeintsKey = (params: any = {}) => ["recipeints", params];
 
-export function useRecipeints(params = {}) {
+export function useRecipeints(params: any = {}) {
   return useQuery({
     queryKey: recipeintsKey(params),
     queryFn: () => getRecipeints(params),
     staleTime: 10 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
-    select: (payload) => {
+    select: (payload: any) => {
       const items = Array.isArray(payload?.data) ? payload.data : [];
 
-      const rows = items.map((it, idx) => ({
+      const rows = items.map((it: any, idx: number) => ({
         id: it._id || it.id || idx,
         name: it.name || "",
         ar_name: it.ar_name || "",

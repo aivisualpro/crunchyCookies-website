@@ -17,21 +17,20 @@ const defaultQueryOpts = {
   staleTime: THIRTY_MIN,
   cacheTime: THIRTY_MIN,
   refetchOnWindowFocus: false,
-  keepPreviousData: true,
 };
 
 const qk = {
-  inFlowerInVases: (params) => ["products", "inFlowerInVases", params || {}],
-  topSold: (params) => ["products", "topSold", params || {}],
-  inChocolatesOrHandBouquets: (params) => ["products", "inChocOrBouquets", params || {}],
-  friendsOccasion: (params) => ["products", "friendsOccasion", params || {}],
-  inPerfumes: (params) => ["products", "inPerfumes", params || {}],
-  inPreservedFlowers: (params) => ["products", "inPreservedFlowers", params || {}],
-  featured: (params) => ["products", "featured", params || {}],
-  giftDetail: (id) => ["products", "giftDetail", id],
+  inFlowerInVases: (params: any) => ["products", "inFlowerInVases", params || {}],
+  topSold: (params: any) => ["products", "topSold", params || {}],
+  inChocolatesOrHandBouquets: (params: any) => ["products", "inChocOrBouquets", params || {}],
+  friendsOccasion: (params: any) => ["products", "friendsOccasion", params || {}],
+  inPerfumes: (params: any) => ["products", "inPerfumes", params || {}],
+  inPreservedFlowers: (params: any) => ["products", "inPreservedFlowers", params || {}],
+  featured: (params: any) => ["products", "featured", params || {}],
+  giftDetail: (id: string) => ["products", "giftDetail", id],
 };
 
-export function useProductsInFlowerInVases(params) {
+export function useProductsInFlowerInVases(params: any) {
   return useQuery({
     queryKey: qk.inFlowerInVases(params),
     queryFn: () => getProductsInFlowerInVases(params),
@@ -39,7 +38,7 @@ export function useProductsInFlowerInVases(params) {
   });
 }
 
-export function useTopSoldProducts(params, { enabled = true } = {}) {
+export function useTopSoldProducts(params: any, { enabled = true } = {}) {
   return useQuery({
     queryKey: qk.topSold(params),
     queryFn: () => getTopSoldProducts(params),
@@ -48,7 +47,7 @@ export function useTopSoldProducts(params, { enabled = true } = {}) {
   });
 }
 
-export function useProductsInChocolatesOrHandBouquets(params) {
+export function useProductsInChocolatesOrHandBouquets(params: any) {
   return useQuery({
     queryKey: qk.inChocolatesOrHandBouquets(params),
     queryFn: () => getProductsInChocolatesOrHandBouquets(params),
@@ -56,7 +55,7 @@ export function useProductsInChocolatesOrHandBouquets(params) {
   });
 }
 
-export function useProductsForFriendsOccasion(params) {
+export function useProductsForFriendsOccasion(params: any) {
   return useQuery({
     queryKey: qk.friendsOccasion(params),
     queryFn: () => getProductsForFriendsOccasion(params),
@@ -64,7 +63,7 @@ export function useProductsForFriendsOccasion(params) {
   });
 }
 
-export function useProductsInPerfumes(params) {
+export function useProductsInPerfumes(params: any) {
   return useQuery({
     queryKey: qk.inPerfumes(params),
     queryFn: () => getProductsInPerfumes(params),
@@ -72,7 +71,7 @@ export function useProductsInPerfumes(params) {
   });
 }
 
-export function useProductsInPreservedFlowers(params) {
+export function useProductsInPreservedFlowers(params: any) {
   return useQuery({
     queryKey: qk.inPreservedFlowers(params),
     queryFn: () => getProductsInPreservedFlowers(params),
@@ -80,7 +79,7 @@ export function useProductsInPreservedFlowers(params) {
   });
 }
 
-export function useFeaturedProducts(params) {
+export function useFeaturedProducts(params: any) {
   return useQuery({
     queryKey: qk.featured(params),
     queryFn: () => getFeaturedProducts(params),
@@ -89,7 +88,7 @@ export function useFeaturedProducts(params) {
 }
 
 // 👉 returns the product object directly (not the whole API envelope)
-export function useGiftDetail(id) {
+export function useGiftDetail(id: string) {
   return useQuery({
     queryKey: qk.giftDetail(id),
     queryFn: () => getGiftDetail(id),

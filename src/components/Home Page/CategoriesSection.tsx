@@ -3,7 +3,18 @@ import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import Button from "../Button";
 
-export default function GiftIdeasSection({ isPage = false, link = "", en_title, ar_title, items = [], className = "", isCategories = false, isOccasion = false }) {
+interface GiftIdeasProps {
+  isPage?: boolean;
+  link?: string;
+  en_title: string;
+  ar_title: string;
+  items?: any[];
+  className?: string;
+  isCategories?: boolean;
+  isOccasion?: boolean;
+}
+
+export default function GiftIdeasSection({ isPage = false, link = "", en_title, ar_title, items = [], className = "", isCategories = false, isOccasion = false }: GiftIdeasProps) {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
 
@@ -33,7 +44,7 @@ export default function GiftIdeasSection({ isPage = false, link = "", en_title, 
           <div className="rounded-[35px]">
             {/* Items row */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-y-8 place-items-center">
-              {items.map((it) => (
+              {items.map((it: any) => (
                 <Link key={it.id} href={`/filters/${isCategories ? "subCategory" : isOccasion ? "occasion" : "brand"}/${it?.slug}`} className="flex flex-col items-center group">
                   {/* circular badge behind image */}
                   <div className="h-[150px] w-[150px] bg-[#f0e9df] rounded-full flex items-center justify-center">

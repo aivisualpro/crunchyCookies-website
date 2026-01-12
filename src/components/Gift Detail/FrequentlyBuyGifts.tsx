@@ -1,3 +1,4 @@
+// @ts-nocheck
 // client/src/pages/GiftDetail/FrequentlyBuyGifts.jsx
 import React, { useMemo, useState } from "react";
 import { IoBagHandleOutline } from "react-icons/io5";

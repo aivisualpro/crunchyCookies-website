@@ -14,7 +14,13 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
 
-export default function MenuListBox({ dir = "ltr", onClose, onLinkClick }) {
+interface MenuProps {
+  dir?: "ltr" | "rtl";
+  onClose: () => void;
+  onLinkClick?: () => void;
+}
+
+export default function MenuListBox({ dir = "ltr", onClose, onLinkClick }: MenuProps) {
   const { i18n } = useTranslation();
   const langClass = i18n.language === "ar";
 

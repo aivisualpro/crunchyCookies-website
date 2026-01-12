@@ -1,3 +1,4 @@
+// @ts-nocheck
 // client/src/pages/GiftDetail/GiftDetail.jsx
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { CiDeliveryTruck } from "react-icons/ci";

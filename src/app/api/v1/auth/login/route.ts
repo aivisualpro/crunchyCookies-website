@@ -15,7 +15,7 @@ function issueJwt(user: any) {
     throw new Error("JWT_SECRET is not set");
   }
   const expiresIn = process.env.JWT_EXPIRES_IN || "7d";
-  return jwt.sign(payload, secret, { expiresIn });
+  return jwt.sign(payload, secret, { expiresIn: expiresIn as any });
 }
 
 function toSafeUser(doc: any) {

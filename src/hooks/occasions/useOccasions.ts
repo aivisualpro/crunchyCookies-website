@@ -2,18 +2,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { getOccasions } from "../../api/occasions";
 
-const occasionsKey = (params = {}) => ["occasions", params];
+const occasionsKey = (params: any = {}) => ["occasions", params];
 
-export function useOccasions(params = {}) {
+export function useOccasions(params: any = {}) {
   return useQuery({
     queryKey: occasionsKey(params),
     queryFn: () => getOccasions(params),
     staleTime: 10 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
-    select: (payload) => {
+    select: (payload: any) => {
       const items = Array.isArray(payload?.data) ? payload.data : [];
 
-      const rows = items.map((it, idx) => ({
+      const rows = items.map((it: any, idx: number) => ({
         id: it._id || it.id || idx,
         name: it.name || "",
         ar_name: it.ar_name || "",

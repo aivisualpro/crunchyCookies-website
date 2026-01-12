@@ -25,7 +25,7 @@ export default function PaymentFailed() {
 
         <div className="flex flex-col gap-3 mt-4">
           <button
-            onClick={() => navigate('/')} // back to cart
+            onClick={() => navigate.push('/')} // back to cart
             className="inline-flex justify-center items-center px-6 py-2.5 rounded-full bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition"
           >
             Go Back To Home

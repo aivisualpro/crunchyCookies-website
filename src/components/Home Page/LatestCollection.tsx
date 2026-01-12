@@ -5,7 +5,13 @@ import { useTranslation } from "react-i18next";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-const LatestCollection = ({ collections, en_title, ar_title }) => {
+interface LatestCollectionProps {
+  collections: any[];
+  en_title: string;
+  ar_title: string;
+}
+
+const LatestCollection = ({ collections, en_title, ar_title }: LatestCollectionProps) => {
   const { i18n } = useTranslation();
   const langClass = i18n.language === "ar";
 
@@ -21,7 +27,7 @@ const LatestCollection = ({ collections, en_title, ar_title }) => {
           {/* {location.pathname === "/about" ? null : <Button label={`${langClass ? "شاهد المزيد" : "See More"}`} href="/filters/chocolate" />} */}
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {collections?.map((item, index) => (
+          {collections?.map((item: any, index: number) => (
             <div
               key={item.id}
               className="relative flex flex-col items-cente bg-white rounded-lg"

@@ -2,11 +2,11 @@
 import { useEffect, useMemo, useState } from "react";
 
 export default function usePaginatedSection(
-  useQueryHook,
-  { initialLimit = 4, extraParams = {} } = {}
+  useQueryHook: any,
+  { initialLimit = 4, extraParams = {} }: { initialLimit?: number; extraParams?: any } = {}
 ) {
   const [page, setPage] = useState(1);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<any[]>([]);
 
   // all our product endpoints accept { page, limit, ... } now
   const q = useQueryHook({ page, limit: initialLimit, ...extraParams });
@@ -23,7 +23,7 @@ export default function usePaginatedSection(
     setItems((prev) => {
       const next = page === 1 ? list : [...prev, ...list];
       const seen = new Set();
-      return next.filter((p) => {
+      return next.filter((p: any) => {
         const id = p?._id || p?.id;
         if (!id) return false;
         if (seen.has(id)) return false;

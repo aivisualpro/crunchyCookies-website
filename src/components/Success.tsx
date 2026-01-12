@@ -1,26 +1,25 @@
 // client/src/pages/Cart/PaymentSuccess.jsx
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiCheckCircle } from "react-icons/fi";
-import { usePathname } from "next/navigation";
 import { createOrder } from "../api/order";
 import { createPayment } from "../api/payments";
 
 export default function PaymentSuccess() {
   const navigate = useRouter();
-  const location = usePathname();
+  const searchParams = useSearchParams();
   const [ordersPath, setOrdersPath] = useState("/");
   const [status, setStatus] = useState("processing"); // processing | success | error
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const sessionId = params.get("session_id");
+    const sessionId = searchParams?.get("session_id");
     if (!sessionId) return;
 
     const createTransactions = async () => {
       try {
-        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const item = localStorage.getItem("user");
+        const storedUser = item ? JSON.parse(item) : null;
         const userId = storedUser?.user?._id;
 
 
@@ -50,11 +49,13 @@ export default function PaymentSuccess() {
     };
 
     createTransactions();
-  }, [location.search]);
+  }, [searchParams]);
 
   useEffect(() => {
     const run = async () => {
-      const raw = JSON.parse(localStorage.getItem("order"));
+      const item = localStorage.getItem("order");
+      const raw = item ? JSON.parse(item) : null;
+
       if (!raw) {
         setStatus("error");
         setErrorMsg("No order data found. Please try again.");
@@ -110,14 +111,14 @@ export default function PaymentSuccess() {
         {/* Buttons */}
         <div className="flex flex-col gap-3 mt-4">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate.push("/")}
             className="inline-flex justify-center items-center px-6 py-2.5 rounded-full bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-600 transition"
           >
             Continue Shopping
           </button>
 
           <button
-            onClick={() => navigate(ordersPath)}
+            onClick={() => navigate.push(ordersPath)}
             className="inline-flex justify-center items-center px-6 py-2.5 rounded-full border border-emerald-200 text-emerald-600 text-sm font-medium hover:bg-emerald-50 transition"
           >
             View My Orders

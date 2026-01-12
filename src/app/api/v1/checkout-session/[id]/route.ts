@@ -7,10 +7,10 @@ const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY || "", {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const session = await stripe.checkout.sessions.retrieve(id, {
       expand: ["payment_intent.latest_charge"],

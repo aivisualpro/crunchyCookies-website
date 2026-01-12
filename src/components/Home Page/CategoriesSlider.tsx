@@ -9,7 +9,23 @@ import Link from "next/link"
 import "swiper/css";
 import "swiper/css/navigation";
 
-export default function GiftMomentsCarousel({ isOccation = false, className = "", ar_title, en_title, items = [], onItemClick }) {
+interface Props {
+  isOccation?: boolean;
+  className?: string;
+  ar_title: string;
+  en_title: string;
+  items?: any[];
+  onItemClick?: (item: any) => void;
+}
+
+export default function GiftMomentsCarousel({ 
+  isOccation = false, 
+  className = "", 
+  ar_title, 
+  en_title, 
+  items = [], 
+  onItemClick 
+}: Props) {
   const { i18n } = useTranslation(); 
   const isAr = i18n.language === "ar";
 
@@ -19,7 +35,7 @@ export default function GiftMomentsCarousel({ isOccation = false, className = ""
   const cardBg =
     "linear-gradient(90deg, #11e7ff1f 0%, #e59eff1f 50%, #f6b4001f 100%)";
 
-  const label = (it) => (isAr ? it.ar_name : it.name);
+  const label = (it: any) => (isAr ? it.ar_name : it.name);
 
   return (
     <section className="py-10" dir={isAr ? "rtl" : "ltr"}>
@@ -70,7 +86,9 @@ export default function GiftMomentsCarousel({ isOccation = false, className = ""
           watchOverflow
           loop={true}
           onBeforeInit={(swiper) => {
+            // @ts-ignore
             swiper.params.navigation.prevEl = prevRef.current;
+            // @ts-ignore
             swiper.params.navigation.nextEl = nextRef.current;
           }}
           onInit={(swiper) => {
@@ -79,7 +97,7 @@ export default function GiftMomentsCarousel({ isOccation = false, className = ""
           }}
           className="overflow-hidden"
         >
-          {items.map((it) => (
+          {items.map((it: any) => (
             <SwiperSlide key={it.id}>
               <Link
                 href={`/filters/${isOccation ? "occasion" : "recipient"}/${it?.slug}`}

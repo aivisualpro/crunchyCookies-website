@@ -10,9 +10,9 @@ import {
 export const cartKeys = {
   all: ["cart"],
   lists: () => ["cart", "lists"],
-  listByUser: (userId) => ["cart", "lists", "user", userId],
+  listByUser: (userId: string) => ["cart", "lists", "user", userId],
   details: () => ["cart", "detail"],
-  detail: (id) => ["cart", "detail", id],
+  detail: (id: string) => ["cart", "detail", id],
 };
 
 /* ----------------------------- READ HOOKS ----------------------------- */
@@ -27,7 +27,7 @@ export function useCarts() {
 }
 
 // Get single cart by cartId
-export function useCartById(cartId) {
+export function useCartById(cartId: string) {
   return useQuery({
     queryKey: cartKeys.detail(cartId),
     queryFn: () => getCartById(cartId),
@@ -37,7 +37,7 @@ export function useCartById(cartId) {
 }
 
 // Get cart by userId
-export function useCartByUser(userId) {
+export function useCartByUser(userId: string) {
   return useQuery({
     queryKey: cartKeys.listByUser(userId),
     queryFn: () => getCartByUser(userId),

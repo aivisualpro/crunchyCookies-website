@@ -2,9 +2,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { getBrands } from "../../api/brands";
 
-const brandsKey = (params = {}) => ["brands", params];
+const brandsKey = (params: any = {}) => ["brands", params];
 
-export function useBrands(params = {}) {
+export function useBrands(params: any = {}) {
   return useQuery({
     queryKey: brandsKey(params),
     queryFn: () => getBrands(params),
@@ -13,7 +13,7 @@ export function useBrands(params = {}) {
     select: (payload) => {
       const items = Array.isArray(payload?.data) ? payload.data : [];
 
-      const rows = items.map((it, idx) => ({
+      const rows = items.map((it: any, idx: number) => ({
         id: it._id || it.id || idx,
         name: it.name || "",
         ar_name: it.ar_name || "",

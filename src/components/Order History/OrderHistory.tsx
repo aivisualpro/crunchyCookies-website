@@ -21,17 +21,21 @@ const PRIMARY = "#0FB4BB";
 const BORDER = "#BFE8E7";
 const ROW_BG = "rgba(15, 180, 187, 0.03)";
 
-const pad2 = (n) => String(n).padStart(2, "0");
-const currency = (n) => `${n}`;
+const pad2 = (n: any) => String(n).padStart(2, "0");
+const currency = (n: any) => `${n}`;
 
-export default function OrdersTable({ rows = orders }) {
+interface OrdersTableProps {
+  rows?: any[];
+}
+
+export default function OrdersTable({ rows = orders }: OrdersTableProps) {
   const [itemsOpen, setItemsOpen] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
 
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
 
-  const openItems = (order) => {
+  const openItems = (order: any) => {
     setActiveOrder(order);
     setItemsOpen(true);
   };
@@ -115,7 +119,7 @@ export default function OrdersTable({ rows = orders }) {
                   </TableHead>
 
                   <TableBody>
-                    {rows.map((row, idx) => (
+                    {rows.map((row: any, idx: number) => (
                       <TableRow
                         key={row.id}
                         sx={{

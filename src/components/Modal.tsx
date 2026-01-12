@@ -6,7 +6,14 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 const PRIMARY = "#0FB4BB";
 const BORDER = "#BFE8E7";
 
-export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
+interface ModalProps {
+  itemsOpen: boolean;
+  closeItems: () => void;
+  activeOrder: any;
+  isAr: boolean;
+}
+
+export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }: ModalProps) {
   const matches = useMediaQuery("(max-width:767px)");
 
   if (!activeOrder) return null;
@@ -18,10 +25,10 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
     : [];
 
   // quick helpers
-  const t = (en, ar) => (isAr ? ar : en);
+  const t = (en: string, ar: string) => (isAr ? ar : en);
 
   const rById = new Map(
-    recipients.map((r, i) => [
+    recipients.map((r: any, i: number) => [
       r?._id,
       {
         label: r?.label || t(`Recipient ${i + 1}`, `وصول کنندہ ${i + 1}`),
@@ -30,13 +37,13 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
     ])
   );
 
-  const receiverLines = recipients.map((r, i) => {
+  const receiverLines = recipients.map((r: any, i: number) => {
     const label = r?.label || t(`Recipient ${i + 1}`, `وصول کنندہ ${i + 1}`);
     const phone = r?.phone || "";
     return `${label} — ${phone}`;
   });
 
-  const formatMoney = (n) =>
+  const formatMoney = (n: any) =>
     `${currency} ${Number(n || 0).toLocaleString(undefined, {
       maximumFractionDigits: 0,
     })}`;
@@ -49,7 +56,7 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
   if (couponType === "percentage") {
     // simple percentage off subtotal of items
     const subtotal = items.reduce(
-      (s, it) => s + Number(it.price || 0) * Number(it.qty || 0),
+      (s: number, it: any) => s + Number(it.price || 0) * Number(it.qty || 0),
       0
     );
     couponDiscount = Math.round((subtotal * Number(couponValue || 0)) / 100);
@@ -100,7 +107,7 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
             </div>
             <div className="mt-1 text-slate-700 leading-6">
               {receiverLines.length ? (
-                receiverLines.map((line, idx) => <div key={idx}>{line}</div>)
+                receiverLines.map((line: string, idx: number) => <div key={idx}>{line}</div>)
               ) : (
                 <div>-</div>
               )}
@@ -122,7 +129,7 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
 
         {/* Items */}
         <div className="divide-y">
-          {items.map((it, idx) => {
+          {items.map((it: any, idx: number) => {
             const unit = Number(it.price || 0);
             const qty = Number(it.qty || 0);
             const lineTotal = unit * qty;
@@ -131,11 +138,11 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
             const allocations = (
               Array.isArray(it.allocations) ? it.allocations : []
             )
-              .map((a) => {
-                const r = rById.get(a?.recipientID) || {};
+              .map((a: any) => {
+                const r: any = rById.get(a?.recipientID) || {};
                 const q = Number(a?.quantity || 0);
                 const label =
-                  activeOrder.recipients.find((r) => r._id === a.recipientId)
+                  activeOrder.recipients.find((r: any) => r._id === a.recipientId)
                     ?.label || `Recipient`;
                 const phone = r.phone || "";
                 // Short tag like R1, R2 … (derive from label's last digit if present)
@@ -145,7 +152,7 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
                 return { id: a?.recipientID, label, phone, short, qty: q };
               })
               // sort: highest quantity first
-              .sort((a, b) => b.qty - a.qty);
+              .sort((a: any, b: any) => b.qty - a.qty);
 
             return (
               <div key={idx} className="grid grid-cols-12 py-3 items-center">
@@ -179,7 +186,7 @@ export default function Modal({ itemsOpen, closeItems, activeOrder, isAr }) {
                         </span>
 
                         {/* Allocation chips: R1 • 6, R2 • 1 */}
-                        {allocations.map((al, i) => (
+                        {allocations.map((al: any, i: number) => (
                           <span
                             key={`${al.id || i}`}
                             title={`${al.label}${

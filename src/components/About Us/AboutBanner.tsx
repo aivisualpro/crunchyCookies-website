@@ -40,7 +40,7 @@ export default function AboutBanner() {
           {/* Left content */}
           <div className="flex flex-col justify-between">
             <div className="mb-4 flex items-center gap-3">
-              <Link to="/" className="text-primary hover:bg-primary/10 transition-all duration-300 border-primary/30 border-[1px] p-2 rounded-full">
+              <Link href="/" className="text-primary hover:bg-primary/10 transition-all duration-300 border-primary/30 border-[1px] p-2 rounded-full">
                  {langClass ? <IoIosArrowForward size={20} /> : <IoIosArrowBack size={20} />}
               </Link>
               <h2 className="text-2xl sm:text-3xl text-primary">

@@ -20,7 +20,7 @@ export default function Navbar() {
 
   const isArabic = i18n.language === "ar"
 
-  const dir = t("dir") || "ltr";
+  const dir = (t("dir") || "ltr") as "ltr" | "rtl";
   const location = usePathname();
   const navigate = useRouter();
 

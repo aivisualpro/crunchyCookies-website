@@ -45,7 +45,7 @@ export default function HowToPlaceOrder() {
             >
               <img
                 src={step.img}
-                alt={step.title}
+                alt={langClass ? step.ar_title : step.en_title}
                 className="h-96 w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/60 flex flex-col justify-end p-6 text-left">
