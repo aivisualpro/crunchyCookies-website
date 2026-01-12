@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = '/api/v1';
+const BASE_URL = 'https://crunchy-cookies-dashboard-wine.vercel.app/api/v1';
 
 export const getWishlistByUser = async (userId: string) => {
   if (!userId || userId === "undefined") return { data: [] };

@@ -6,7 +6,7 @@ import { CiLock } from "react-icons/ci";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import ToastNotification from "../ToastNotification"; // <- path adjust if needed
 
-const API_BASE = '/api/v1';
+const API_BASE = 'https://crunchy-cookies-dashboard-wine.vercel.app/api/v1';
 
 export default function Register() {
   const navigate = useRouter();

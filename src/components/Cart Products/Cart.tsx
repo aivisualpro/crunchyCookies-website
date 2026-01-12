@@ -634,7 +634,7 @@ export default function Cart() {
 
       // 3) Backend se checkout session banao
       const resp = await fetch(
-        `/api/v1/create-checkout-session`,
+        `https://crunchy-cookies-dashboard-wine.vercel.app/api/v1/create-checkout-session`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
