@@ -1,0 +1,207 @@
+import express from "express";
+import path from "path";
+import dotenv from "dotenv";
+import cors from "cors";
+const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
+
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+
+const { dbConnection } = require("./config/config.js");
+
+const authRoutes = require("./routes/auth.route.js");
+const addressRoutes = require("./routes/address.route.js");
+const brandRoutes = require("./routes/brand.route.js");
+const cartRoutes = require("./routes/cart.route.js");
+const colorRoutes = require("./routes/color.route.js");
+const categoryRoutes = require("./routes/category.route.js");
+const categoryTypeRoutes = require("./routes/categoryType.route.js");
+const couponRoutes = require("./routes/coupon.route.js");
+const invoiceRoutes = require("./routes/invoice.route.js");
+const occasionRoutes = require("./routes/occasion.route.js");
+const ongoingOrderRoutes = require("./routes/ongoingOrder.route.js");
+const orderRoutes = require("./routes/order.route.js");
+const orderCancelRoutes = require("./routes/orderCancel.route.js");
+const orderHistoryRoutes = require("./routes/orderHistory.route.js");
+const orderItemRoutes = require("./routes/orderItems.route.js");
+const packagingRoutes = require("./routes/packaging.route.js");
+const paymentMethodRoutes = require("./routes/paymentMethod.route.js");
+const permissionRoutes = require("./routes/permission.route.js");
+const productRoutes = require("./routes/product.route.js");
+const recipientRoutes = require("./routes/recipient.route.js");
+const roleRoutes = require("./routes/role.route.js");
+const subCategoryRoutes = require("./routes/subCategory.route.js");
+const userRoutes = require("./routes/user.route.js");
+const wishlistRoutes = require("./routes/wishlist.route.js");
+const analyticsRoutes = require("./routes/analytics.route.js");
+const paymentRoutes = require("./routes/payment.route.js");
+
+const { ensureHeaders, appendRow } = require("./utils/googleSheets.js");
+const { google } = require("googleapis");
+
+const app = express();
+const PORT: number = Number(process.env.PORT) || 5000;
+
+/* CORS */
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://crunchy-cookies.skynetsilicon.com",
+  "https://crunchy-cookies-dashboard.vercel.app",
+];
+app.use(
+  cors({
+    origin: (origin, cb) =>
+      !origin || allowedOrigins.includes(origin)
+        ? cb(null, true)
+        : cb(new Error("Not allowed by CORS")),
+    credentials: true,
+  })
+);
+
+/* Body parsers BEFORE routes */
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true }));
+
+/* DB */
+dbConnection();
+
+/* Routes */
+let code = "SA-2025-00098";
+app.get("/", (_req, res) =>
+  res.status(200).json({ message: "Welcome Back Crunchy Cookies Server" })
+);
+app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/address", addressRoutes);
+app.use("/api/v1/brand", brandRoutes);
+app.use("/api/v1/cart", cartRoutes);
+app.use("/api/v1/color", colorRoutes);
+app.use("/api/v1/category", categoryRoutes);
+app.use("/api/v1/categoryType", categoryTypeRoutes);
+app.use("/api/v1/coupon", couponRoutes);
+app.use("/api/v1/invoice", invoiceRoutes);
+app.use("/api/v1/occasion", occasionRoutes);
+app.use("/api/v1/ongoingOrder", ongoingOrderRoutes);
+app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/orderCancel", orderCancelRoutes);
+app.use("/api/v1/orderHistory", orderHistoryRoutes);
+app.use("/api/v1/orderItem", orderItemRoutes);
+app.use("/api/v1/packaging", packagingRoutes);
+app.use("/api/v1/paymentMethod", paymentMethodRoutes);
+app.use("/api/v1/permission", permissionRoutes);
+app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/recipient", recipientRoutes);
+app.use("/api/v1/role", roleRoutes);
+app.use("/api/v1/subCategory", subCategoryRoutes);
+app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/wishlist", wishlistRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/payment", paymentRoutes);
+
+app.use("/api", require("./routes/ping_routes"));
+
+// server/index.js (ya jahan bhi app.post likha hai)
+app.post("/api/v1/create-checkout-session", async (req, res) => {
+  try {
+    const { products, userId } = req.body;
+
+    console.log("products", products);
+
+    const CLIENT_URL =
+      process.env.CLIENT_URL || "https://crunchy-cookies.skynetsilicon.com/";
+
+    interface Product {
+      en_name?: string;
+      name?: string;
+      price: number | string;
+      quantity: number | string;
+    }
+
+    // 1) Normal products line items (yahan 200 add NAHI karna)
+    const lineItems = (products as Product[]).map((p: Product) => ({
+      price_data: {
+        currency: "qar",
+        product_data: {
+          name: p.en_name || p.name || "Product",
+        },
+        // 👉 sirf product price, delivery yahan mat add karo
+        unit_amount: Math.round(Number(p.price || 0) * 100), // per 1 quantity
+      },
+      quantity: Number(p.quantity || 1),
+    }));
+
+    // 2) Extra 200 QAR as separate line item (sirf 1 dafa add hoga)
+    lineItems.push({
+      price_data: {
+        currency: "qar",
+        product_data: {
+          name: "Delivery Fee", // ya "Delivery Charges (Flat)"
+        },
+        unit_amount: 200 * 100, // 200 QAR -> dirham
+      },
+      quantity: 1,
+    });
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      success_url: `${CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${CLIENT_URL}/payment-failed`,
+      metadata: {
+        userId: String(userId || ""),
+      },
+    });
+
+    return res.json({
+      id: session.id,
+      url: session.url,
+    });
+  } catch (err: any) {
+    console.error("Error in /api/v1/create-checkout-session:", err);
+    return res
+      .status(500)
+      .json({ error: err.message || "Failed to create Stripe session" });
+  }
+});
+
+app.get("/api/v1/checkout-session/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // session + payment_intent + latest_charge expand
+    const session = await stripe.checkout.sessions.retrieve(id, {
+      expand: ["payment_intent.latest_charge"],
+    });
+
+    const paymentIntent = session.payment_intent;
+    const charge = paymentIntent?.latest_charge;
+    const receiptUrl = charge?.receipt_url || null;
+
+    res.json({
+      success: true,
+      session,
+      receiptUrl, // <-- yeh Stripe ki official receipt link
+    });
+  } catch (err: any) {
+    console.error("Error fetching checkout session:", err);
+    res.status(500).json({
+      success: false,
+      message: err.message || "Failed to fetch session",
+    });
+  }
+});
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server listening at:`);
+  console.log(`→ http://localhost:${PORT}`);
+  // Auto ping to keep Render awake
+  const axios = require("axios");
+  setInterval(async () => {
+    try {
+      await axios.get("https://crunchy-cookies-server.onrender.com/api/ping");
+      console.log(`[AutoPing] Successful at ${new Date().toISOString()}`);
+    } catch (err: any) {
+      console.error("[AutoPing] Failed:", err.message);
+    }
+  }, 10 * 60 * 1000); // 10 minutes
+});
