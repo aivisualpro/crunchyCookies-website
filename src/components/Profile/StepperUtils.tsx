@@ -1,5 +1,6 @@
 import { styled } from "@mui/material/styles";
 import StepConnector, { stepConnectorClasses } from "@mui/material/StepConnector";
+import { StepIconProps } from "@mui/material/StepIcon";
 import { FiCheck } from "react-icons/fi";
 
 // Custom connector for the Stepper component
@@ -26,8 +27,13 @@ export const CyanConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
+interface DotProps {
+  $active?: boolean;
+  $completed?: boolean;
+}
+
 // Custom Dot for the Stepper, representing each step
-export const Dot = styled("div")(({ $active, $completed }) => ({
+export const Dot = styled("div")<DotProps>(({ $active, $completed }) => ({
   width: 16,
   height: 16,
   borderRadius: "50%",
@@ -37,7 +43,7 @@ export const Dot = styled("div")(({ $active, $completed }) => ({
 }));
 
 // Custom Step Icon for the Stepper, showing the dot and optional checkmark
-export function DotStepIcon(props) {
+export function DotStepIcon(props: StepIconProps) {
   const { active, completed, className } = props;
   return (
     <span

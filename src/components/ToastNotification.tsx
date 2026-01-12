@@ -2,7 +2,16 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FiCheckCircle, FiXCircle } from "react-icons/fi";
 
-const ToastNotification = ({
+interface ToastNotificationProps {
+  open: boolean;
+  type?: string;
+  title?: string;
+  message?: string;
+  duration?: number;
+  onClose?: () => void;
+}
+
+const ToastNotification: React.FC<ToastNotificationProps> = ({
   open,
   type = "success", // "success" | "error"
   title,
@@ -12,7 +21,7 @@ const ToastNotification = ({
 }) => {
   const [shouldRender, setShouldRender] = useState(open);   // DOM mount flag
   const [visible, setVisible] = useState(open);             // animation state
-  const exitTimeoutRef = useRef(null);
+  const exitTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // ----- Mount / unmount with animation -----
   useEffect(() => {

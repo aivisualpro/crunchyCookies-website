@@ -1,4 +1,18 @@
-const mongoose = require('mongoose');
+import mongoose, { CallbackError } from 'mongoose';
+
+interface IAllocation {
+  recipientId: mongoose.Types.ObjectId;
+  quantity: number;
+}
+
+interface IOrderItem {
+  order: mongoose.Types.ObjectId;
+  product: mongoose.Types.ObjectId;
+  quantity: number;
+  allocations: IAllocation[];
+  discountForProducts: number;
+  totalAmount: number;
+}
 
 const allocationSchema = new mongoose.Schema(
   {
@@ -15,7 +29,7 @@ const allocationSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const orderItemSchema = new mongoose.Schema(
+const orderItemSchema = new mongoose.Schema<IOrderItem>(
   {
     order: {
       type: mongoose.Schema.Types.ObjectId,
@@ -44,15 +58,15 @@ const orderItemSchema = new mongoose.Schema(
 );
 
 // Optional safety check: sum(allocations) == quantity
-orderItemSchema.pre('validate', function (next) {
+orderItemSchema.pre('validate', function (this: IOrderItem, next: (err?: CallbackError) => void) {
   if (this.allocations && this.allocations.length > 0) {
     const totalAllocated = this.allocations.reduce(
-      (sum, a) => sum + (a.quantity || 0),
+      (sum: number, a: IAllocation) => sum + (a.quantity || 0),
       0
     );
     if (totalAllocated !== this.quantity) {
       return next(
-        new Error('Allocated quantity must equal item quantity')
+        new Error('Allocated quantity must equal item quantity') as CallbackError
       );
     }
   }

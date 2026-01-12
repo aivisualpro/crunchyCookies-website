@@ -8,7 +8,8 @@ import { useParams } from "next/navigation";
 
 const ProfilePage = () => {
 
-  const { currentTab } = useParams();
+  const params = useParams();
+  const currentTab = params?.currentTab as string | undefined;
 
   return (
     <>

@@ -22,9 +22,9 @@ import { usePreviousOrder } from "../../hooks/orders/useOrder";
 const PRIMARY = "#0FB4BB";
 const BORDER = "#BFE8E7";
 
-const pad2 = (n) => String(n).padStart(2, "0");
-const currency = (n) => `${Number(n || 0)}`;
-const fmtDMY = (d) => {
+const pad2 = (n: number | string) => String(n).padStart(2, "0");
+const currency = (n: number | string | null | undefined) => `${Number(n || 0)}`;
+const fmtDMY = (d: string | Date | null | undefined) => {
   if (!d) return "-";
   const dt = new Date(d);
   const dd = pad2(dt.getDate());
@@ -36,8 +36,40 @@ const fmtDMY = (d) => {
 const ORDER_STATUS = ["pending", "confirmed", "shipped", "delivered", "cancelled", "returned"];
 const PAYMENT_STATUS = ["pending", "paid", "failed", "refunded", "partial"];
 
+interface OrderItem {
+  en_name: string;
+  ar_name: string;
+  image: string;
+  qty: number;
+  price: number;
+  allocations: unknown[];
+}
+
+interface Recipient {
+  phone?: string;
+  [key: string]: unknown;
+}
+
+interface OrderRow {
+  _id: string;
+  code: string;
+  status: string;
+  paymentStatus: string;
+  placedAt: string;
+  deliveredAt?: string;
+  totalItems: number;
+  grandTotal: number;
+  sender: string;
+  receiver: string;
+  recipients: Recipient[];
+  coupon?: unknown;
+  couponType?: string;
+  taxAmount?: number;
+  items: OrderItem[];
+}
+
 // ---------- Badge helpers ----------
-const chipSX = (bg, fg) => ({
+const chipSX = (bg: string, fg: string) => ({
   bgcolor: bg,
   color: fg,
   fontWeight: 600,
@@ -47,7 +79,7 @@ const chipSX = (bg, fg) => ({
   "& .MuiChip-label": { px: 0.75, textTransform: "capitalize" },
 });
 
-function renderPaymentChip(status) {
+function renderPaymentChip(status: string) {
   const s = String(status || "pending").toLowerCase();
   switch (s) {
     case "paid":
@@ -64,7 +96,7 @@ function renderPaymentChip(status) {
   }
 }
 
-function renderOrderChip(status) {
+function renderOrderChip(status: string) {
   const s = String(status || "pending").toLowerCase();
   switch (s) {
     case "delivered":
@@ -94,7 +126,7 @@ export default function PreviousOrdersTable() {
   const userId = userObj?._id || userObj?.id;
 
   const [itemsOpen, setItemsOpen] = useState(false);
-  const [activeOrder, setActiveOrder] = useState(null);
+  const [activeOrder, setActiveOrder] = useState<OrderRow | null>(null);
 
   // React Query
   const {
@@ -113,22 +145,22 @@ export default function PreviousOrdersTable() {
   }
 
   // ---------- JSON → UI mapping (UPDATED) ----------
-  const rows = useMemo(() => {
+  const rows = useMemo((): OrderRow[] => {
     const arr = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
-    return arr.map((node) => {
-      const o = node?.order || {};
+    return arr.map((node: Record<string, unknown>) => {
+      const o = (node?.order || {}) as Record<string, unknown>;
       const items = Array.isArray(o?.items) ? o.items : [];
       const recipients = Array.isArray(o?.recipients) ? o.recipients : [];
 
-      const totalItems = items.reduce((sum, it) => sum + Number(it?.quantity || 0), 0);
+      const totalItems = items.reduce((sum: number, it: Record<string, unknown>) => sum + Number(it?.quantity || 0), 0);
 
       // modal items: use `product` + allocations
-      const modalItems = items.map((it) => {
-        const p = it?.product || {};
+      const modalItems = items.map((it: Record<string, unknown>) => {
+        const p = (it?.product || {}) as Record<string, unknown>;
         return {
-          en_name: p?.title || "",
-          ar_name: p?.ar_title || "",
-          image: p?.featuredImage || "",
+          en_name: (p?.title as string) || "",
+          ar_name: (p?.ar_title as string) || "",
+          image: (p?.featuredImage as string) || "",
           qty: Number(it?.quantity || 0),
           price: Number(p?.price ?? 0),
           allocations: Array.isArray(it?.allocations) ? it.allocations : [],
@@ -136,29 +168,29 @@ export default function PreviousOrdersTable() {
       });
 
       return {
-        _id: node?._id || o?._id,
-        code: o?.code || node?.code,
-        status: (node?.status || o?.status || "pending").toLowerCase(),
-        paymentStatus: (node?.paymentStatus || o?.payment || "pending").toLowerCase(),
-        placedAt: o?.placedAt || node?.at || node?.createdAt || o?.createdAt,
-        deliveredAt: o?.deliveredAt,
+        _id: (node?._id || o?._id) as string,
+        code: (o?.code || node?.code) as string,
+        status: (((node?.status || o?.status || "pending") as string)).toLowerCase(),
+        paymentStatus: (((node?.paymentStatus || o?.payment || "pending") as string)).toLowerCase(),
+        placedAt: (o?.placedAt || node?.at || node?.createdAt || o?.createdAt) as string,
+        deliveredAt: o?.deliveredAt as string | undefined,
         totalItems,
         grandTotal: Number(o?.grandTotal ?? 0),
-        sender: o?.senderPhone || "",
+        sender: (o?.senderPhone || "") as string,
 
         // join all recipient phones for the table cell, but pass full recipients to Modal
-        receiver: recipients.map(r => r?.phone).filter(Boolean).join(", "),
-        recipients,
+        receiver: recipients.map((r: Record<string, unknown>) => r?.phone).filter(Boolean).join(", "),
+        recipients: recipients as Recipient[],
 
-        coupon: o?.appliedCoupon?.value,
-        couponType: o?.appliedCoupon?.type,
-        taxAmount: o?.taxAmount,
+        coupon: o?.appliedCoupon ? (o.appliedCoupon as Record<string, unknown>)?.value : undefined,
+        couponType: o?.appliedCoupon ? (o.appliedCoupon as Record<string, unknown>)?.type as string : undefined,
+        taxAmount: o?.taxAmount as number | undefined,
         items: modalItems,
       };
     });
   }, [raw]);
 
-  const openItems = (row) => {
+  const openItems = (row: OrderRow) => {
     setActiveOrder(row);
     setItemsOpen(true);
   };

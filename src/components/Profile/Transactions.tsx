@@ -20,9 +20,9 @@ import { getStripeSessionDetails } from "../../api/payments";
 const PRIMARY = "#0FB4BB";
 const BORDER = "#BFE8E7";
 
-const pad2 = (n) => String(n).padStart(2, "0");
+const pad2 = (n: number | string) => String(n).padStart(2, "0");
 
-const fmtDateTime = (d) => {
+const fmtDateTime = (d: Date | string | null | undefined) => {
   if (!d) return "-";
   const dt = d instanceof Date ? d : new Date(d);
   const dd = pad2(dt.getDate());
@@ -33,7 +33,7 @@ const fmtDateTime = (d) => {
   return `${dd}-${mm}-${yy} ${hh}:${min}`;
 };
 
-const fmtAmount = (value, currency = "QAR") => {
+const fmtAmount = (value: number | null | undefined, currency = "QAR") => {
   if (value == null) return "-";
   return `${currency.toUpperCase()} ${Number(value).toLocaleString("en-US", {
     minimumFractionDigits: 2,
@@ -41,8 +41,30 @@ const fmtAmount = (value, currency = "QAR") => {
   })}`;
 };
 
+interface StripeInfo {
+  amountTotal?: number;
+  currency?: string;
+  paymentStatus?: string;
+  stripeEmail?: string | null;
+  paymentMethod?: string;
+  paidAt?: Date | null;
+}
+
+interface PaymentRow {
+  _id: string;
+  sessionId: string;
+  createdAt: Date | string;
+  name: string;
+  email: string;
+  phone: string;
+  amount?: number;
+  currency: string;
+  paymentStatus: string;
+  paymentMethod: string;
+}
+
 export default function Transactions() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user") as string);
 
   const badgeBase = {
     display: "inline-flex",
@@ -53,10 +75,10 @@ export default function Transactions() {
     fontSize: "0.75rem",
     fontWeight: 600,
     letterSpacing: "0.08em",
-    textTransform: "uppercase",
+    textTransform: "uppercase" as const,
   };
 
-  const getStatusBadgeStyle = (status) => {
+  const getStatusBadgeStyle = (status: string) => {
     const s = (status || "").toLowerCase();
 
     if (s === "paid" || s === "succeeded") {
@@ -95,7 +117,7 @@ export default function Transactions() {
     };
   };
 
-  const getMethodBadgeStyle = (method) => {
+  const getMethodBadgeStyle = (method: string) => {
     const m = (method || "").toLowerCase();
 
     if (m.includes("card")) {
@@ -142,9 +164,9 @@ export default function Transactions() {
   const payments = data?.rows || [];
 
   // Stripe details map: { [sessionId]: { amountTotal, currency, paymentStatus, stripeEmail, paymentMethod, paidAt } }
-  const [stripeDetails, setStripeDetails] = useState({});
+  const [stripeDetails, setStripeDetails] = useState<Record<string, StripeInfo>>({});
   const [stripeLoading, setStripeLoading] = useState(false);
-  const [stripeError, setStripeError] = useState(null);
+  const [stripeError, setStripeError] = useState<string | null>(null);
 
   // ------------ Fetch Stripe session details for all rows ------------
   useEffect(() => {
@@ -157,10 +179,10 @@ export default function Transactions() {
       try {
         const entries = await Promise.all(
           payments
-            .filter((p) => p.sessionId)
-            .map(async (p) => {
+            .filter((p: Record<string, unknown>) => p.sessionId)
+            .map(async (p: Record<string, unknown>) => {
               try {
-                const res = await getStripeSessionDetails(p.sessionId);
+                const res = await getStripeSessionDetails(p.sessionId as string);
 
                 if (!res?.success || !res.session) return null;
 
@@ -189,7 +211,7 @@ export default function Transactions() {
                 const paidAt = ts ? new Date(ts * 1000) : null;
 
                 return {
-                  sessionId: p.sessionId,
+                  sessionId: p.sessionId as string,
                   data: {
                     amountTotal,
                     currency,
@@ -210,7 +232,7 @@ export default function Transactions() {
             })
         );
 
-        const map = {};
+        const map: Record<string, StripeInfo> = {};
         for (const entry of entries) {
           if (!entry) continue;
           map[entry.sessionId] = entry.data;
@@ -228,20 +250,20 @@ export default function Transactions() {
   }, [payments]);
 
   // ------------ Build rows for table ------------
-  const rows = useMemo(() => {
-    return payments.map((p) => {
-      const u = p.userId || {};
-      const stripeInfo = stripeDetails[p.sessionId] || {};
+  const rows = useMemo((): PaymentRow[] => {
+    return payments.map((p: Record<string, unknown>) => {
+      const u = (p.userId || {}) as Record<string, unknown>;
+      const stripeInfo = stripeDetails[(p.sessionId as string)] || {};
 
       return {
-        _id: p.id || p._id,
-        sessionId: p.sessionId,
+        _id: (p.id || p._id) as string,
+        sessionId: p.sessionId as string,
         // prefer Stripe paidAt, fallback DB createdAt
-        createdAt: stripeInfo.paidAt || p.createdAt,
+        createdAt: stripeInfo.paidAt || (p.createdAt as Date | string),
         name: [u.firstName, u.lastName].filter(Boolean).join(" ") || "-",
         // prefer Stripe email, fallback app user email
-        email: stripeInfo.stripeEmail || u.email || "-",
-        phone: u.phone || "-",
+        email: stripeInfo.stripeEmail || (u.email as string) || "-",
+        phone: (u.phone as string) || "-",
         amount: stripeInfo.amountTotal,
         currency: stripeInfo.currency || "QAR",
         paymentStatus: stripeInfo.paymentStatus || "-",

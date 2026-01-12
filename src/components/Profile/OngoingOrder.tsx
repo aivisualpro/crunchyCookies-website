@@ -25,6 +25,38 @@ import { useOngoingOrder } from "../../hooks/orders/useOrder";
 const ORDER_STATUS = ["pending", "confirmed", "shipped", "delivered", "cancelled", "returned"];
 const PAYMENT_STATUS = ["pending", "paid", "failed", "refunded", "partial"];
 
+interface OrderItem {
+  en_name: string;
+  ar_name: string;
+  image: string;
+  qty: number;
+  price: number;
+  allocations: unknown[];
+}
+
+interface Recipient {
+  phone?: string;
+  [key: string]: unknown;
+}
+
+interface OrderData {
+  _id: string;
+  orderId: string;
+  code: string;
+  status: string;
+  paymentStatus: string;
+  placedAt: string;
+  totalItems: number;
+  grandTotal: number;
+  sender: string;
+  receiver: string;
+  coupon?: unknown;
+  couponType?: string;
+  taxAmount?: number;
+  items: OrderItem[];
+  recipients: Recipient[];
+}
+
 export default function OngoingOrdersCard() {
   const { i18n } = useTranslation();
   const isAr = i18n.language === "ar";
@@ -32,19 +64,19 @@ export default function OngoingOrdersCard() {
   const queryClient = useQueryClient();
 
   const [itemsOpen, setItemsOpen] = useState(false);
-  const [activeOrder, setActiveOrder] = useState(null);
+  const [activeOrder, setActiveOrder] = useState<OrderData | null>(null);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [reasonOpen, setReasonOpen] = useState(false);
-  const [cancelTarget, setCancelTarget] = useState(null);
+  const [cancelTarget, setCancelTarget] = useState<OrderData | null>(null);
   const [cancelReason, setCancelReason] = useState("");
   const [canceling, setCanceling] = useState(false);
   const [cancelErr, setCancelErr] = useState("");
 
-  const statusToIndex = (s) =>
+  const statusToIndex = (s: string | null | undefined) =>
     Math.max(0, ORDER_STATUS.indexOf(String(s || "").toLowerCase()));
 
-  const statusLabel = (s) => {
+  const statusLabel = (s: string | null | undefined) => {
     const key = String(s || "").toLowerCase();
     if (!isAr) return key.charAt(0).toUpperCase() + key.slice(1);
     switch (key) {
@@ -75,22 +107,22 @@ export default function OngoingOrdersCard() {
   });
 
   // ---------- JSON→UI mapping (updated for your payload) ----------
-  const list = useMemo(() => {
+  const list = useMemo((): OrderData[] => {
     const rows = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
-    return rows.map((node) => {
+    return rows.map((node: Record<string, unknown>) => {
       // Your shape: node { _id, order: { _id, code, status, payment, items[], recipients[], ... }, paymentStatus, status, at/placedAt, ... }
-      const o = node?.order || {};
+      const o = (node?.order || {}) as Record<string, unknown>;
       const items = Array.isArray(o?.items) ? o.items : [];
       const recipients = Array.isArray(o?.recipients) ? o.recipients : [];
 
-      const totalItems = items.reduce((sum, it) => sum + Number(it?.quantity || 0), 0);
+      const totalItems = items.reduce((sum: number, it: Record<string, unknown>) => sum + Number(it?.quantity || 0), 0);
 
-      const modalItems = items.map((it) => {
-        const p = it?.product || {}; // <- product (not products)
+      const modalItems = items.map((it: Record<string, unknown>) => {
+        const p = (it?.product || {}) as Record<string, unknown>; // <- product (not products)
         return {
-          en_name: p?.title || "",
-          ar_name: p?.ar_title || "",
-          image: p?.featuredImage || "",
+          en_name: (p?.title as string) || "",
+          ar_name: (p?.ar_title as string) || "",
+          image: (p?.featuredImage as string) || "",
           qty: Number(it?.quantity || 0),
           price: Number(p?.price ?? 0),
           allocations: Array.isArray(it?.allocations) ? it.allocations : [],
@@ -98,39 +130,39 @@ export default function OngoingOrdersCard() {
       });
 
       return {
-        _id: node?._id || o?._id,
-        orderId: o?._id,
-        code: o?.code || node?.code,
-        status: (node?.status || o?.status || "pending").toLowerCase(),
-        paymentStatus: (node?.paymentStatus || o?.payment || "pending").toLowerCase(),
-        placedAt: o?.placedAt || node?.at || node?.createdAt || o?.createdAt,
+        _id: (node?._id || o?._id) as string,
+        orderId: o?._id as string,
+        code: (o?.code || node?.code) as string,
+        status: (((node?.status || o?.status || "pending") as string)).toLowerCase(),
+        paymentStatus: (((node?.paymentStatus || o?.payment || "pending") as string)).toLowerCase(),
+        placedAt: (o?.placedAt || node?.at || node?.createdAt || o?.createdAt) as string,
         totalItems,
         grandTotal: Number(o?.grandTotal ?? node?.grandTotal ?? 0),
-        sender: o?.senderPhone || "",
+        sender: (o?.senderPhone || "") as string,
         // multiple recipients -> show all phones joined
-        receiver: recipients.map(r => r?.phone).filter(Boolean).join(", "),
-        coupon: o?.appliedCoupon?.value,
-        couponType: o?.appliedCoupon?.type,
-        taxAmount: o?.taxAmount,
+        receiver: recipients.map((r: Record<string, unknown>) => r?.phone).filter(Boolean).join(", "),
+        coupon: o?.appliedCoupon ? (o.appliedCoupon as Record<string, unknown>)?.value : undefined,
+        couponType: o?.appliedCoupon ? (o.appliedCoupon as Record<string, unknown>)?.type as string : undefined,
+        taxAmount: o?.taxAmount as number | undefined,
         items: modalItems,
-        recipients, // pass through if your Modal wants to show them
+        recipients: recipients as Recipient[], // pass through if your Modal wants to show them
       };
     });
   }, [raw]);
 
   const visibleList = useMemo(
-    () => list.filter((o) => !["cancelled", "returned", "delivered"].includes(o.status)),
+    () => list.filter((o: OrderData) => !["cancelled", "returned", "delivered"].includes(o.status)),
     [list]
   );
 
-  const openItems = (orderObj) => {
+  const openItems = (orderObj: OrderData) => {
     setActiveOrder(orderObj);
     setItemsOpen(true);
   };
   const closeItems = () => setItemsOpen(false);
 
   // ------- Cancel flow -------
-  const askCancel = (order) => {
+  const askCancel = (order: OrderData) => {
     setCancelErr("");
     setCancelReason("");
     setCancelTarget(order);
@@ -171,9 +203,9 @@ export default function OngoingOrdersCard() {
       setReasonOpen(false);
       setCancelTarget(null);
       setCancelReason("");
-    } catch (e) {
+    } catch (e: unknown) {
       console.error(e);
-      setCancelErr(e?.message || (isAr ? "آرڈر منسوخ کرنے میں ناکامی." : "Failed to cancel order."));
+      setCancelErr((e as Error)?.message || (isAr ? "آرڈر منسوخ کرنے میں ناکامی." : "Failed to cancel order."));
     } finally {
       setCanceling(false);
     }
@@ -236,7 +268,7 @@ export default function OngoingOrdersCard() {
                   <Stepper
                     activeStep={current}
                     alternativeLabel
-                    connector={matches ? false : <CyanConnector />}
+                    connector={matches ? undefined : <CyanConnector />}
                     orientation={matches ? "vertical" : "horizontal"}
                   >
                     {ORDER_STATUS.slice(0, 4).map((label) => (

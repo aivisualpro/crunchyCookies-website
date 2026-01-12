@@ -1,15 +1,23 @@
+"use client";
 import React from 'react'
-import { Outlet, Navigate } from "next/navigation"
+import { useRouter } from "next/navigation"
 
-const ProtectedRoute = () => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    const router = useRouter();
+    const stored = localStorage.getItem("user");
+    const isAuthenticated = stored ? JSON.parse(stored) : null;
 
-    const isAuthenticated = JSON.parse(localStorage.getItem("user"));
+    React.useEffect(() => {
+        if (!isAuthenticated) {
+            router.push('/login');
+        }
+    }, [isAuthenticated, router]);
 
-    return (
-        <>
-            {isAuthenticated ? <Outlet /> : <Navigate href={'/login'} />}
-        </>
-    )
+    if (!isAuthenticated) {
+        return null;
+    }
+
+    return <>{children}</>;
 }
 
 export default ProtectedRoute
