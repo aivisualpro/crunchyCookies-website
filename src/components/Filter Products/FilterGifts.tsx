@@ -20,9 +20,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { ClipLoader } from "react-spinners";
 
 /* ==================== CONFIG ==================== */
-const API_BASE =
-  process.env.NEXT_PUBLIC_VITE_BASE_URL || process.env.VITE_BASE_URL ||
-  "https://crunchy-cookies-server.onrender.com/api/v1";
+const API_BASE = '/api/v1';
 const PAGE_SIZE = 15;
 
 /* ==================== HELPERS ==================== */

@@ -634,7 +634,7 @@ export default function Cart() {
 
       // 3) Backend se checkout session banao
       const resp = await fetch(
-        `${process.env.NEXT_PUBLIC_VITE_BASE_URL || process.env.VITE_BASE_URL || "https://crunchy-cookies-server.onrender.com/api/v1"}/create-checkout-session`,
+        `/api/v1/create-checkout-session`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

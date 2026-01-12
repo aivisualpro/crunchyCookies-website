@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = process.env.VITE_BASE_URL || 'https://crunchy-cookies-server.onrender.com/api/v1';
+const BASE_URL = '/api/v1';
 
 export const updateUser = async (userDetail: any, userId: string) => {
     try {

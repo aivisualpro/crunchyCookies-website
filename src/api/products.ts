@@ -1,8 +1,7 @@
 // client/src/api/products.js
 import axios from "axios";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_VITE_BASE_URL || process.env.VITE_BASE_URL || "https://crunchy-cookies-server.onrender.com/api/v1";
+const BASE_URL = '/api/v1';
 
 // helper to build query string
 const qs = (obj: Record<string, any> = {}) =>
