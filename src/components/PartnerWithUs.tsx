@@ -21,7 +21,7 @@ const countryCodes = [
   "KSA (+966)",
 ];
 
-function Label({ children }) {
+function Label({ children }: { children: React.ReactNode }) {
   return (
     <label className="block text-[13.5px] mb-2" style={{ color: COLORS.text }}>
       {children} :
@@ -29,7 +29,7 @@ function Label({ children }) {
   );
 }
 
-function BaseField({ children }) {
+function BaseField({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="rounded-xl bg-white"
@@ -40,7 +40,7 @@ function BaseField({ children }) {
   );
 }
 
-function TextInput({ placeholder, type = "text" }) {
+function TextInput({ placeholder, type = "text" }: { placeholder: string; type?: string }) {
   return (
     <BaseField>
       <input
@@ -52,7 +52,7 @@ function TextInput({ placeholder, type = "text" }) {
   );
 }
 
-function SelectLike({ placeholder = "Select", items = [] }) {
+function SelectLike({ placeholder = "Select", items = [] }: { placeholder?: string; items?: string[] }) {
   const [open, setOpen] = useState(false);
   const [val, setVal] = useState("");
 
@@ -99,7 +99,7 @@ function SelectLike({ placeholder = "Select", items = [] }) {
   );
 }
 
-function UploadBox({ hint }) {
+function UploadBox({ hint }: { hint?: string }) {
   return (
     <div
       className="rounded-2xl p-4 md:p-5"
@@ -122,7 +122,7 @@ function UploadBox({ hint }) {
   );
 }
 
-function Pill({ label }) {
+function Pill({ label }: { label: string }) {
   const [checked, setChecked] = useState(false);
   return (
     <button
@@ -243,8 +243,8 @@ export default function PartnerWithUs() {
               <div>
                 <Label>Category</Label>
                 <div className="flex flex-wrap gap-3">
-                  {categories?.rows?.map((c) => (
-                    <Pill key={c?.slug} label={c?.name} />
+                  {categories?.rows?.map((c: { slug: string; name: string; id: string | number; ar_name: string; image: string; parent: string }) => (
+                    <Pill key={c.slug} label={c.name} />
                   ))}
                 </div>
               </div>
